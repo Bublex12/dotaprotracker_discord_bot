@@ -14,7 +14,9 @@ export async function sendFollowupMessage(
   if (file) {
     // Отправка с файлом через multipart/form-data
     const formData = new FormData();
-    const blob = new Blob([file], { type: 'image/png' });
+    // Конвертируем Buffer в Uint8Array для Blob
+    const uint8Array = new Uint8Array(file);
+    const blob = new Blob([uint8Array], { type: 'image/png' });
     formData.append('files[0]', blob, filename || 'screenshot.png');
     formData.append(
       'payload_json',
