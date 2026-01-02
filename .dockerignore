@@ -1,0 +1,63 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+.venv
+
+# Node.js (если есть)
+node_modules/
+.next/
+out/
+build/
+dist/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Git
+.git/
+.gitignore
+
+# Environment
+.env.local
+.env*.local
+
+# Screenshots (опционально, если хотите сохранять)
+# screenshots/
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docker
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# Документация
+README*.md
+ЗАПУСК.md
+ИНСТРУКЦИЯ.md
+README-VERCEL.md
+
+# Другие файлы
+app/
+lib/
+scripts/
+package.json
+tsconfig.json
+next.config.js
+vercel.json
+env.example
+
