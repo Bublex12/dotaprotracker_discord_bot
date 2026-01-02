@@ -78,9 +78,12 @@ async def hero_screenshot(ctx, hero_name: str = None):
     except Exception as e:
         error_msg = str(e)
         print(f"Ошибка при создании скриншота: {error_msg}")
+        import traceback
+        traceback.print_exc()
         await ctx.send(
             f"❌ Произошла ошибка при создании скриншота для **{hero_name}**:\n"
-            f"`{error_msg[:200]}`"
+            f"`{error_msg[:200]}`\n\n"
+            f"Попробуйте еще раз через несколько секунд."
         )
 
 

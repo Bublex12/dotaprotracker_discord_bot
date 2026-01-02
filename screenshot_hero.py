@@ -66,8 +66,8 @@ def screenshot_hero(hero_name: str, output_dir: str = "screenshots", wait_time: 
         page.set_viewport_size({"width": 1920, "height": 1080})
         
         try:
-            # Переходим на страницу
-            page.goto(url, wait_until="networkidle", timeout=15000)
+            # Переходим на страницу (увеличиваем таймаут и используем load вместо networkidle)
+            page.goto(url, wait_until="load", timeout=30000)
             
             # Ждем немного для появления уведомления о cookies/GDPR
             page.wait_for_timeout(500)
@@ -212,7 +212,8 @@ def screenshot_hero(hero_name: str, output_dir: str = "screenshots", wait_time: 
             print(f"✗ Ошибка при создании скриншота: {e}")
             import traceback
             traceback.print_exc()
-            sys.exit(1)
+            # Не завершаем программу, просто возвращаемся - бот должен продолжать работать
+            return
         finally:
             browser.close()
 
