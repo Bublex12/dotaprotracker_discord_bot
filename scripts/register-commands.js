@@ -3,9 +3,22 @@
  * Запуск: node scripts/register-commands.js
  */
 
-// Загружаем переменные окружения из .env.local или .env
-require('dotenv').config({ path: '.env.local' });
-require('dotenv').config();
+// Загружаем переменные окружения
+const dotenv = require('dotenv');
+const path = require('path');
+const fs = require('fs');
+
+// Сначала пробуем .env.local, потом .env
+if (fs.existsSync('.env.local')) {
+  dotenv.config({ path: '.env.local' });
+  console.log('✅ Загружен .env.local');
+} else if (fs.existsSync('.env')) {
+  dotenv.config();
+  console.log('✅ Загружен .env');
+} else {
+  dotenv.config();
+  console.log('⚠️ Файл .env.local не найден, используем переменные окружения системы');
+}
 
 const DISCORD_APPLICATION_ID = process.env.DISCORD_APPLICATION_ID;
 const DISCORD_BOT_TOKEN = process.env.DISCORD_BOT_TOKEN;
