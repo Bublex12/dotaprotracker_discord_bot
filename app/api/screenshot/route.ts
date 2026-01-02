@@ -26,9 +26,18 @@ export async function POST(request: NextRequest) {
 
     log('🌐 Запускаю браузер...');
     // Запускаем браузер в serverless режиме
+    // На Vercel используем chromium из системного пути
     const browser = await chromium.launch({
       headless: true,
-      args: ['--no-sandbox', '--disable-setuid-sandbox'],
+      args: [
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        '--disable-dev-shm-usage',
+        '--disable-gpu',
+        '--single-process',
+      ],
+      // Указываем путь к браузеру для Vercel
+      executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH,
     });
     log('✅ Браузер запущен');
 
