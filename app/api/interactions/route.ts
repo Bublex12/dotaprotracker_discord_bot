@@ -7,6 +7,9 @@ import {
 
 const DISCORD_PUBLIC_KEY = process.env.DISCORD_PUBLIC_KEY!;
 
+// Настройка для Vercel: максимальное время выполнения функции
+export const maxDuration = 60;
+
 export async function POST(request: NextRequest) {
   try {
     const signature = request.headers.get('x-signature-ed25519');

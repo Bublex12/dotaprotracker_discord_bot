@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { chromium } from 'playwright';
 
+// Настройка для Vercel: максимальное время выполнения функции
+export const maxDuration = 60;
+
 export async function POST(request: NextRequest) {
   try {
     const { heroName, interactionToken, applicationId } = await request.json();
