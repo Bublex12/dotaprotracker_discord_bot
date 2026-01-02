@@ -28,6 +28,28 @@ function log(message: string, data?: any) {
 // Настройка для Vercel: максимальное время выполнения функции
 export const maxDuration = 60;
 
+// Обработка GET запросов (для проверки endpoint)
+export async function GET(request: NextRequest) {
+  log('📥 Получен GET запрос (проверка endpoint)');
+  return NextResponse.json({
+    status: 'ok',
+    message: 'Discord Interactions API endpoint is active',
+    timestamp: new Date().toISOString(),
+  });
+}
+
+// Обработка OPTIONS запросов (CORS preflight)
+export async function OPTIONS(request: NextRequest) {
+  return new NextResponse(null, {
+    status: 200,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type, x-signature-ed25519, x-signature-timestamp',
+    },
+  });
+}
+
 export async function POST(request: NextRequest) {
   try {
     const signature = request.headers.get('x-signature-ed25519');
