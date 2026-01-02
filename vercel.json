@@ -1,0 +1,14 @@
+{
+  "functions": {
+    "app/api/interactions/route.ts": {
+      "maxDuration": 60
+    },
+    "app/api/screenshot/route.ts": {
+      "maxDuration": 60
+    }
+  },
+  "env": {
+    "PLAYWRIGHT_BROWSERS_PATH": "0"
+  }
+}
+

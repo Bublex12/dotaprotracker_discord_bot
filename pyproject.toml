@@ -1,0 +1,11 @@
+[project]
+name = "dota-discord-bot"
+version = "0.1.0"
+description = "Discord бот для получения скриншотов билдов героев с dota2protracker.com"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "playwright>=1.40.0",
+    "discord.py>=2.3.0",
+    "python-dotenv>=1.0.0",
+]
