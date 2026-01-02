@@ -44,15 +44,18 @@ export async function POST(request: NextRequest) {
 
       for (const selector of consentSelectors) {
         try {
-          const button = page.locator(selector).first;
-          try {
-            await button.click({ timeout: 1000 });
-            // Если клик прошел успешно, ждем и выходим
-            await page.waitForTimeout(300);
-            break;
-          } catch {
-            // Элемент не найден или не кликабелен, продолжаем
-            continue;
+          const button = page.locator(selector);
+          const buttonCount = await button.count();
+          if (buttonCount > 0) {
+            try {
+              await button.first().click({ timeout: 1000 });
+              // Если клик прошел успешно, ждем и выходим
+              await page.waitForTimeout(300);
+              break;
+            } catch {
+              // Элемент не найден или не кликабелен, продолжаем
+              continue;
+            }
           }
         } catch {
           // Продолжаем поиск следующего селектора
@@ -72,15 +75,18 @@ export async function POST(request: NextRequest) {
 
       for (const selector of buildsTabSelectors) {
         try {
-          const tab = page.locator(selector).first;
-          try {
-            await tab.click({ timeout: 1000 });
-            // Если клик прошел успешно, ждем и выходим
-            await page.waitForTimeout(500);
-            break;
-          } catch {
-            // Элемент не найден или не кликабелен, продолжаем
-            continue;
+          const tab = page.locator(selector);
+          const tabCount = await tab.count();
+          if (tabCount > 0) {
+            try {
+              await tab.first().click({ timeout: 1000 });
+              // Если клик прошел успешно, ждем и выходим
+              await page.waitForTimeout(500);
+              break;
+            } catch {
+              // Элемент не найден или не кликабелен, продолжаем
+              continue;
+            }
           }
         } catch {
           // Продолжаем поиск следующего селектора
