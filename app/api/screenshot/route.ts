@@ -44,11 +44,12 @@ export async function POST(request: NextRequest) {
 
       for (const selector of consentSelectors) {
         try {
-          const button = page.locator(selector);
-          const buttonCount = await button.count();
+          const buttonLocator = page.locator(selector);
+          const buttonCount = await buttonLocator.count();
           if (buttonCount > 0) {
             try {
-              await button.first().click({ timeout: 1000 });
+              const firstButton = buttonLocator.first;
+              await firstButton.click({ timeout: 1000 });
               // Если клик прошел успешно, ждем и выходим
               await page.waitForTimeout(300);
               break;
@@ -75,11 +76,12 @@ export async function POST(request: NextRequest) {
 
       for (const selector of buildsTabSelectors) {
         try {
-          const tab = page.locator(selector);
-          const tabCount = await tab.count();
+          const tabLocator = page.locator(selector);
+          const tabCount = await tabLocator.count();
           if (tabCount > 0) {
             try {
-              await tab.first().click({ timeout: 1000 });
+              const firstTab = tabLocator.first;
+              await firstTab.click({ timeout: 1000 });
               // Если клик прошел успешно, ждем и выходим
               await page.waitForTimeout(500);
               break;
