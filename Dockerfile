@@ -37,9 +37,8 @@ COPY requirements.txt pyproject.toml ./
 # Устанавливаем Python зависимости
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Устанавливаем Playwright и браузеры
-RUN playwright install chromium && \
-    playwright install-deps chromium
+# Устанавливаем Playwright и браузеры (без системных зависимостей, они уже установлены выше)
+RUN playwright install chromium
 
 # Копируем код приложения
 COPY main.py screenshot_hero.py ./
