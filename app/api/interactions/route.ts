@@ -59,34 +59,60 @@ export async function POST(request: NextRequest) {
     log('📥 Получен interaction запрос', {
       hasSignature: !!signature,
       hasTimestamp: !!timestamp,
-      bodyLength: body.length
+      bodyLength: body.length,
+      hasPublicKey: !!DISCORD_PUBLIC_KEY,
+      publicKeyLength: DISCORD_PUBLIC_KEY?.length || 0
     });
 
-    // Для тестирования пропускаем проверку подписи, если это тестовый запрос
-    const isTestRequest = signature === 'test' || !signature;
-    
-    if (!isTestRequest) {
-      if (!signature || !timestamp) {
-        log('❌ Отсутствуют заголовки подписи');
-        return NextResponse.json(
-          { error: 'Missing signature headers' },
-          { status: 401 }
-        );
-      }
-
-      // Проверяем подпись Discord
-      const isValid = verifyKey(body, signature, timestamp, DISCORD_PUBLIC_KEY);
-
-      if (!isValid) {
-        log('❌ Неверная подпись');
-        return NextResponse.json(
-          { error: 'Invalid signature' },
-          { status: 401 }
-        );
-      }
-    } else {
-      log('⚠️ Тестовый запрос - пропущена проверка подписи');
+    // Проверяем наличие обязательных заголовков
+    if (!signature || !timestamp) {
+      log('❌ Отсутствуют заголовки подписи');
+      return NextResponse.json(
+        { error: 'Missing signature headers' },
+        { 
+          status: 401,
+          headers: {
+            'Access-Control-Allow-Origin': '*',
+          }
+        }
+      );
     }
+
+    // Проверяем наличие PUBLIC_KEY
+    if (!DISCORD_PUBLIC_KEY || DISCORD_PUBLIC_KEY === 'your_public_key_here') {
+      log('❌ DISCORD_PUBLIC_KEY не установлен или имеет значение по умолчанию');
+      return NextResponse.json(
+        { error: 'Server configuration error' },
+        { 
+          status: 500,
+          headers: {
+            'Access-Control-Allow-Origin': '*',
+          }
+        }
+      );
+    }
+
+    // Проверяем подпись Discord
+    const isValid = verifyKey(body, signature, timestamp, DISCORD_PUBLIC_KEY);
+
+    if (!isValid) {
+      log('❌ Неверная подпись', {
+        signatureLength: signature.length,
+        timestampLength: timestamp.length,
+        bodyPreview: body.substring(0, 100)
+      });
+      return NextResponse.json(
+        { error: 'Invalid signature' },
+        { 
+          status: 401,
+          headers: {
+            'Access-Control-Allow-Origin': '*',
+          }
+        }
+      );
+    }
+    
+    log('✅ Подпись проверена успешно');
 
     const interaction = JSON.parse(body);
     log('📋 Тип interaction:', interaction.type);
