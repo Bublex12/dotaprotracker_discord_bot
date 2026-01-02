@@ -94,9 +94,15 @@ export async function POST(request: NextRequest) {
     // Обработка ping (для верификации)
     if (interaction.type === InteractionType.PING) {
       log('🏓 PING запрос - отправляю PONG');
-      return NextResponse.json({
+      // Discord ожидает PONG с type: 1
+      const pongResponse = NextResponse.json({
         type: InteractionResponseType.PONG,
       });
+      // Добавляем заголовки для CORS
+      pongResponse.headers.set('Access-Control-Allow-Origin', '*');
+      pongResponse.headers.set('Access-Control-Allow-Methods', 'POST, GET, OPTIONS');
+      pongResponse.headers.set('Access-Control-Allow-Headers', 'Content-Type, x-signature-ed25519, x-signature-timestamp');
+      return pongResponse;
     }
 
     // Обработка slash команд
