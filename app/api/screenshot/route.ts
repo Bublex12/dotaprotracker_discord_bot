@@ -44,22 +44,13 @@ export async function POST(request: NextRequest) {
 
       for (const selector of consentSelectors) {
         try {
-          const buttonLocator = page.locator(selector);
-          const buttonCount = await buttonLocator.count();
-          if (buttonCount > 0) {
-            try {
-              const firstButton = buttonLocator.first;
-              await firstButton.click({ timeout: 1000 });
-              // Если клик прошел успешно, ждем и выходим
-              await page.waitForTimeout(300);
-              break;
-            } catch {
-              // Элемент не найден или не кликабелен, продолжаем
-              continue;
-            }
-          }
+          // Пробуем кликнуть напрямую через page.click
+          await page.click(selector, { timeout: 1000 });
+          // Если клик прошел успешно, ждем и выходим
+          await page.waitForTimeout(300);
+          break;
         } catch {
-          // Продолжаем поиск следующего селектора
+          // Элемент не найден или не кликабелен, продолжаем
           continue;
         }
       }
@@ -76,22 +67,13 @@ export async function POST(request: NextRequest) {
 
       for (const selector of buildsTabSelectors) {
         try {
-          const tabLocator = page.locator(selector);
-          const tabCount = await tabLocator.count();
-          if (tabCount > 0) {
-            try {
-              const firstTab = tabLocator.first;
-              await firstTab.click({ timeout: 1000 });
-              // Если клик прошел успешно, ждем и выходим
-              await page.waitForTimeout(500);
-              break;
-            } catch {
-              // Элемент не найден или не кликабелен, продолжаем
-              continue;
-            }
-          }
+          // Пробуем кликнуть напрямую через page.click
+          await page.click(selector, { timeout: 1000 });
+          // Если клик прошел успешно, ждем и выходим
+          await page.waitForTimeout(500);
+          break;
         } catch {
-          // Продолжаем поиск следующего селектора
+          // Элемент не найден или не кликабелен, продолжаем
           continue;
         }
       }
