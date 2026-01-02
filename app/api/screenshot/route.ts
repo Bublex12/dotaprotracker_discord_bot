@@ -45,7 +45,8 @@ export async function POST(request: NextRequest) {
       for (const selector of consentSelectors) {
         try {
           const button = page.locator(selector).first;
-          if (await button.isVisible({ timeout: 1000 }).catch(() => false)) {
+          const isVisible = await button.isVisible({ timeout: 1000 }).catch(() => false);
+          if (isVisible) {
             await button.click();
             await page.waitForTimeout(300);
             break;
@@ -68,7 +69,8 @@ export async function POST(request: NextRequest) {
       for (const selector of buildsTabSelectors) {
         try {
           const tab = page.locator(selector).first;
-          if (await tab.isVisible({ timeout: 1000 }).catch(() => false)) {
+          const isVisible = await tab.isVisible({ timeout: 1000 }).catch(() => false);
+          if (isVisible) {
             await tab.click();
             await page.waitForTimeout(500);
             break;
