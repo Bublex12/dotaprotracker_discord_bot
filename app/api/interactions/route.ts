@@ -5,10 +5,15 @@ import {
   verifyKey,
 } from 'discord-interactions';
 
-// Захардкоженный токен для тестирования
-const DISCORD_PUBLIC_KEY = process.env.DISCORD_PUBLIC_KEY || 'your_public_key_here';
-const DISCORD_BOT_TOKEN = process.env.DISCORD_BOT_TOKEN || 'your_bot_token_here';
-const DISCORD_APPLICATION_ID = process.env.DISCORD_APPLICATION_ID || 'your_application_id_here';
+// Захардкоженные токены для тестирования (тестовый бот)
+const DISCORD_PUBLIC_KEY = process.env.DISCORD_PUBLIC_KEY || 'YOUR_PUBLIC_KEY_HERE';
+const DISCORD_BOT_TOKEN = process.env.DISCORD_BOT_TOKEN || 'YOUR_BOT_TOKEN_HERE';
+const DISCORD_APPLICATION_ID = process.env.DISCORD_APPLICATION_ID || 'YOUR_APPLICATION_ID_HERE';
+
+// TODO: Замените на реальные значения вашего тестового бота
+// DISCORD_PUBLIC_KEY - из Discord Developer Portal → General Information → Public Key
+// DISCORD_BOT_TOKEN - из Discord Developer Portal → Bot → Token
+// DISCORD_APPLICATION_ID - из Discord Developer Portal → General Information → Application ID
 
 // Логирование
 function log(message: string, data?: any) {
