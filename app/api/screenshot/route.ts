@@ -79,12 +79,11 @@ export async function POST(request: NextRequest) {
       }
 
       // Ищем контент вкладки Builds
-      const buildsElement = page.locator('.flex.flex-col.gap-1').first;
-      
       let screenshotBuffer: Buffer;
       
       try {
-        await buildsElement.waitFor({ state: 'attached', timeout: 2000 });
+        // Ждем появления элемента
+        await page.waitForSelector('.flex.flex-col.gap-1', { timeout: 2000, state: 'attached' });
         
         const bbox = await page.evaluate(() => {
           const element = document.querySelector('.flex.flex-col.gap-1');
@@ -111,7 +110,13 @@ export async function POST(request: NextRequest) {
             },
           });
         } else {
-          screenshotBuffer = await buildsElement.screenshot();
+          // Если не удалось получить bbox, делаем скриншот элемента через evaluate
+          const element = await page.$('.flex.flex-col.gap-1');
+          if (element) {
+            screenshotBuffer = await element.screenshot();
+          } else {
+            throw new Error('Element not found');
+          }
         }
       } catch {
         // Запасной вариант - скриншот всей страницы
