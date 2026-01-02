@@ -45,16 +45,16 @@ export async function POST(request: NextRequest) {
       for (const selector of consentSelectors) {
         try {
           const button = page.locator(selector).first;
-          try {
-            const isVisible = await button.isVisible({ timeout: 1000 });
-            if (isVisible) {
-              await button.click();
+          const count = await button.count();
+          if (count > 0) {
+            try {
+              await button.click({ timeout: 1000 });
               await page.waitForTimeout(300);
               break;
+            } catch {
+              // Не удалось кликнуть, продолжаем
+              continue;
             }
-          } catch {
-            // Элемент не виден или не найден, продолжаем
-            continue;
           }
         } catch {
           continue;
@@ -74,16 +74,16 @@ export async function POST(request: NextRequest) {
       for (const selector of buildsTabSelectors) {
         try {
           const tab = page.locator(selector).first;
-          try {
-            const isVisible = await tab.isVisible({ timeout: 1000 });
-            if (isVisible) {
-              await tab.click();
+          const count = await tab.count();
+          if (count > 0) {
+            try {
+              await tab.click({ timeout: 1000 });
               await page.waitForTimeout(500);
               break;
+            } catch {
+              // Не удалось кликнуть, продолжаем
+              continue;
             }
-          } catch {
-            // Элемент не виден или не найден, продолжаем
-            continue;
           }
         } catch {
           continue;
