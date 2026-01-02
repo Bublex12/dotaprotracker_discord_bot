@@ -45,12 +45,15 @@ export async function POST(request: NextRequest) {
       for (const selector of consentSelectors) {
         try {
           const button = page.locator(selector).first;
-          await button.click({ timeout: 1000 }).catch(() => {
-            // Игнорируем ошибку, если элемент не найден
-          });
-          // Если клик прошел успешно, ждем и выходим
-          await page.waitForTimeout(300);
-          break;
+          try {
+            await button.click({ timeout: 1000 });
+            // Если клик прошел успешно, ждем и выходим
+            await page.waitForTimeout(300);
+            break;
+          } catch {
+            // Элемент не найден или не кликабелен, продолжаем
+            continue;
+          }
         } catch {
           // Продолжаем поиск следующего селектора
           continue;
@@ -70,12 +73,15 @@ export async function POST(request: NextRequest) {
       for (const selector of buildsTabSelectors) {
         try {
           const tab = page.locator(selector).first;
-          await tab.click({ timeout: 1000 }).catch(() => {
-            // Игнорируем ошибку, если элемент не найден
-          });
-          // Если клик прошел успешно, ждем и выходим
-          await page.waitForTimeout(500);
-          break;
+          try {
+            await tab.click({ timeout: 1000 });
+            // Если клик прошел успешно, ждем и выходим
+            await page.waitForTimeout(500);
+            break;
+          } catch {
+            // Элемент не найден или не кликабелен, продолжаем
+            continue;
+          }
         } catch {
           // Продолжаем поиск следующего селектора
           continue;
