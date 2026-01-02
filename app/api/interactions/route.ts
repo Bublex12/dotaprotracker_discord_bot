@@ -5,10 +5,14 @@ import {
   verifyKey,
 } from 'discord-interactions';
 
-// Захардкоженные токены для тестирования (тестовый бот)
-const DISCORD_PUBLIC_KEY = process.env.DISCORD_PUBLIC_KEY || 'YOUR_PUBLIC_KEY_HERE';
-const DISCORD_BOT_TOKEN = process.env.DISCORD_BOT_TOKEN || 'YOUR_BOT_TOKEN_HERE';
-const DISCORD_APPLICATION_ID = process.env.DISCORD_APPLICATION_ID || 'YOUR_APPLICATION_ID_HERE';
+// Токены из переменных окружения (для тестового бота)
+// Создайте файл .env.local с этими значениями:
+// DISCORD_PUBLIC_KEY=ваш_public_key
+// DISCORD_BOT_TOKEN=ваш_bot_token
+// DISCORD_APPLICATION_ID=ваш_application_id
+const DISCORD_PUBLIC_KEY = process.env.DISCORD_PUBLIC_KEY!;
+const DISCORD_BOT_TOKEN = process.env.DISCORD_BOT_TOKEN!;
+const DISCORD_APPLICATION_ID = process.env.DISCORD_APPLICATION_ID!;
 
 // TODO: Замените на реальные значения вашего тестового бота
 // DISCORD_PUBLIC_KEY - из Discord Developer Portal → General Information → Public Key
