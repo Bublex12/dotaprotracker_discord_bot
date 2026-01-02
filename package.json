@@ -20,11 +20,11 @@
   },
   "scripts": {
     "dev": "next dev",
-    "build": "playwright install chromium && next build",
+    "build": "npx playwright install chromium && next build",
     "start": "next start",
     "lint": "next lint",
     "register-commands": "node scripts/register-commands.js",
-    "postinstall": "playwright install --with-deps chromium || playwright install chromium"
+    "postinstall": "npx playwright install chromium"
   }
 }
 
