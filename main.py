@@ -10,6 +10,7 @@ from discord.ext import commands
 from pathlib import Path
 import sys
 from dotenv import load_dotenv
+import aiohttp
 
 # Загружаем переменные окружения из .env файла
 load_dotenv()
@@ -24,6 +25,9 @@ bot = commands.Bot(command_prefix='!', intents=intents)
 
 # Папка для скриншотов
 SCREENSHOTS_DIR = "screenshots"
+
+# URL API для получения данных о матче
+MATCH_API_URL = "https://dotaspectator-production.up.railway.app/players"
 
 
 @bot.event
@@ -87,6 +91,101 @@ async def hero_screenshot(ctx, hero_name: str = None):
         )
 
 
+@bot.command(name='match')
+async def match_command(ctx):
+    """
+    Команда для получения списка игроков текущего матча Dota 2.
+    Использование: !match
+    """
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.get(MATCH_API_URL, timeout=aiohttp.ClientTimeout(total=10)) as response:
+                if response.status == 200:
+                    data = await response.json()
+                    
+                    # Проверяем статус ответа
+                    if data.get("status") == "no_match":
+                        await ctx.send("❌ Нет активного матча. Убедитесь, что матч запущен и сервер GSI получает данные.")
+                        return
+                    
+                    if data.get("status") == "error":
+                        error_msg = data.get("message", "Неизвестная ошибка")
+                        await ctx.send(f"❌ Ошибка при получении данных о матче: {error_msg}")
+                        return
+                    
+                    players = data.get("players", [])
+                    
+                    if not players:
+                        await ctx.send("❌ Игроки не найдены в данных матча.")
+                        return
+                    
+                    # Формируем сообщение в формате "Ник - Dotabuff ссылка"
+                    lines = []
+                    for player in players:
+                        name = player.get('name', 'Unknown')
+                        dotabuff_url = player.get('dotabuff_url')
+                        
+                        if dotabuff_url:
+                            lines.append(f"{name} - {dotabuff_url}")
+                        else:
+                            steamid = player.get('steamid', 'N/A')
+                            if steamid != 'N/A':
+                                # Пытаемся создать ссылку вручную
+                                if steamid and str(steamid).isdigit() and len(str(steamid)) == 17:
+                                    dotabuff_url = f"https://www.dotabuff.com/players/{steamid}"
+                                    lines.append(f"{name} - {dotabuff_url}")
+                                else:
+                                    lines.append(f"{name} - (SteamID: {steamid})")
+                            else:
+                                lines.append(f"{name} - (нет SteamID)")
+                    
+                    message_text = "\n".join(lines)
+                    
+                    # Discord имеет лимит на длину сообщения (2000 символов)
+                    # Если сообщение слишком длинное, разбиваем на части
+                    if len(message_text) > 2000:
+                        chunks = []
+                        current_chunk = []
+                        current_length = 0
+                        
+                        for line in lines:
+                            line_length = len(line) + 1  # +1 для переноса строки
+                            
+                            if current_length + line_length > 1900:
+                                chunks.append("\n".join(current_chunk))
+                                current_chunk = [line]
+                                current_length = line_length
+                            else:
+                                current_chunk.append(line)
+                                current_length += line_length
+                        
+                        if current_chunk:
+                            chunks.append("\n".join(current_chunk))
+                        
+                        # Отправляем первое сообщение
+                        await ctx.send(chunks[0])
+                        
+                        # Отправляем остальные части
+                        for chunk in chunks[1:]:
+                            await ctx.send(chunk)
+                    else:
+                        await ctx.send(message_text)
+                        
+                else:
+                    await ctx.send(f"❌ Ошибка при обращении к API матча (код {response.status})")
+                    
+    except aiohttp.ClientError as e:
+        await ctx.send(f"❌ Ошибка при подключении к серверу матча: {str(e)}")
+    except asyncio.TimeoutError:
+        await ctx.send("❌ Превышено время ожидания ответа от сервера матча.")
+    except Exception as e:
+        error_msg = str(e)
+        print(f"Ошибка при получении данных о матче: {error_msg}")
+        import traceback
+        traceback.print_exc()
+        await ctx.send(f"❌ Произошла ошибка при получении данных о матче:\n`{error_msg[:200]}`")
+
+
 @bot.command(name='help_hero')
 async def help_command(ctx):
     """Показывает справку по использованию бота"""
@@ -98,7 +197,8 @@ async def help_command(ctx):
     embed.add_field(
         name="Команды",
         value="`!hero <название>` - Получить скриншот билда героя\n"
-              "Примеры: `!hero mars`, `!hero pudge`, `!hero invoker`",
+              "Примеры: `!hero mars`, `!hero pudge`, `!hero invoker`\n\n"
+              "`!match` - Получить список игроков текущего матча Dota 2",
         inline=False
     )
     embed.add_field(
