@@ -35,7 +35,7 @@ export async function POST(request: NextRequest) {
     log('🔗 Открываю страницу', { url });
     
     try {
-      await page.goto(url, { waitUntil: 'networkidle', timeout: 15000 });
+      await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 45000 });
       log('✅ Страница загружена');
       await page.waitForTimeout(500);
 
