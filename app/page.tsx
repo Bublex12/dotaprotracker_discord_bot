@@ -4,13 +4,15 @@ import { useState } from 'react';
 
 export default function Home() {
   const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState<string>('');
+  const [message, setMessage] = useState('');
+  const [screenshotUrl, setScreenshotUrl] = useState<string | null>(null);
   const [heroName, setHeroName] = useState('mars');
 
   const testScreenshot = async () => {
     setLoading(true);
-    setResult('🔄 Обрабатываю запрос...');
-    
+    setMessage('🔄 Обрабатываю запрос...');
+    setScreenshotUrl(null);
+
     try {
       const response = await fetch('/api/screenshot', {
         method: 'POST',
@@ -19,33 +21,22 @@ export default function Home() {
         },
         body: JSON.stringify({
           heroName,
-          // Тестовые данные для webhook
           interactionToken: 'test',
           applicationId: 'test',
         }),
       });
 
       const data = await response.json();
-      
-      if (data.success) {
-        setResult('✅ Скриншот успешно создан!');
-        // Показываем изображение
-        if (data.image) {
-          const img = document.createElement('img');
-          img.src = data.image;
-          img.style.maxWidth = '100%';
-          img.style.marginTop = '20px';
-          const resultDiv = document.getElementById('result');
-          if (resultDiv) {
-            resultDiv.innerHTML = '✅ Скриншот успешно создан!<br>';
-            resultDiv.appendChild(img);
-          }
-        }
+
+      if (data.success && data.image) {
+        setMessage(`✅ Скриншот билда для ${heroName}`);
+        setScreenshotUrl(data.image);
       } else {
-        setResult(`❌ Ошибка: ${data.message || data.error}`);
+        setMessage(`❌ Ошибка: ${data.message || data.error}`);
       }
-    } catch (error: any) {
-      setResult(`❌ Ошибка: ${error.message}`);
+    } catch (error: unknown) {
+      const err = error instanceof Error ? error : new Error(String(error));
+      setMessage(`❌ Ошибка: ${err.message}`);
     } finally {
       setLoading(false);
     }
@@ -53,10 +44,10 @@ export default function Home() {
 
   const testInteraction = async () => {
     setLoading(true);
-    setResult('🔄 Тестирую interaction endpoint...');
-    
+    setMessage('🔄 Тестирую interaction endpoint...');
+    setScreenshotUrl(null);
+
     try {
-      // Симулируем ping запрос от Discord
       const response = await fetch('/api/interactions', {
         method: 'POST',
         headers: {
@@ -65,44 +56,55 @@ export default function Home() {
           'x-signature-timestamp': Date.now().toString(),
         },
         body: JSON.stringify({
-          type: 1, // PING
+          type: 1,
         }),
       });
 
       const data = await response.json();
-      
-      if (data.type === 1) { // PONG
-        setResult('✅ Interaction endpoint работает! (PONG получен)');
+
+      if (data.type === 1) {
+        setMessage('✅ Interaction endpoint работает! (PONG получен)');
       } else {
-        setResult(`⚠️ Неожиданный ответ: ${JSON.stringify(data)}`);
+        setMessage(`⚠️ Неожиданный ответ: ${JSON.stringify(data)}`);
       }
-    } catch (error: any) {
-      setResult(`❌ Ошибка: ${error.message}`);
+    } catch (error: unknown) {
+      const err = error instanceof Error ? error : new Error(String(error));
+      setMessage(`❌ Ошибка: ${err.message}`);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div style={{ 
-      padding: '2rem', 
-      fontFamily: 'system-ui, sans-serif',
-      maxWidth: '800px',
-      margin: '0 auto'
-    }}>
+    <div
+      style={{
+        padding: '2rem',
+        fontFamily: 'system-ui, sans-serif',
+        maxWidth: '960px',
+        margin: '0 auto',
+      }}
+    >
       <h1>🤖 Dota 2 Hero Screenshot Bot</h1>
       <p>Discord бот для получения скриншотов билдов героев с dota2protracker.com</p>
-      
-      <div style={{ 
-        marginTop: '2rem',
-        padding: '1.5rem',
-        backgroundColor: '#f5f5f5',
-        borderRadius: '8px'
-      }}>
+
+      <div
+        style={{
+          marginTop: '2rem',
+          padding: '1.5rem',
+          backgroundColor: '#f5f5f5',
+          borderRadius: '8px',
+        }}
+      >
         <h2>🧪 Тестирование</h2>
-        
+
         <div style={{ marginBottom: '1rem' }}>
-          <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
+          <label
+            style={{
+              display: 'block',
+              marginBottom: '0.5rem',
+              fontWeight: 'bold',
+            }}
+          >
             Название героя:
           </label>
           <input
@@ -115,7 +117,7 @@ export default function Home() {
               fontSize: '1rem',
               width: '200px',
               borderRadius: '4px',
-              border: '1px solid #ccc'
+              border: '1px solid #ccc',
             }}
           />
         </div>
@@ -132,7 +134,7 @@ export default function Home() {
               border: 'none',
               borderRadius: '6px',
               cursor: loading ? 'not-allowed' : 'pointer',
-              opacity: loading ? 0.6 : 1
+              opacity: loading ? 0.6 : 1,
             }}
           >
             {loading ? '⏳ Обработка...' : '📸 Тест скриншота'}
@@ -149,7 +151,7 @@ export default function Home() {
               border: 'none',
               borderRadius: '6px',
               cursor: loading ? 'not-allowed' : 'pointer',
-              opacity: loading ? 0.6 : 1
+              opacity: loading ? 0.6 : 1,
             }}
           >
             {loading ? '⏳ Тестирование...' : '🔌 Тест Interaction'}
@@ -157,27 +159,64 @@ export default function Home() {
         </div>
 
         <div
-          id="result"
           style={{
             marginTop: '1.5rem',
             padding: '1rem',
             backgroundColor: 'white',
             borderRadius: '4px',
             minHeight: '50px',
-            whiteSpace: 'pre-wrap'
           }}
         >
-          {result || 'Нажмите кнопку для тестирования'}
+          <p style={{ margin: '0 0 1rem 0' }}>
+            {message || 'Нажмите кнопку для тестирования'}
+          </p>
+
+          {screenshotUrl && (
+            <div
+              style={{
+                border: '1px solid #ddd',
+                borderRadius: '6px',
+                overflow: 'hidden',
+                backgroundColor: '#1a1a1a',
+              }}
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={screenshotUrl}
+                alt={`Скриншот билда ${heroName}`}
+                style={{
+                  display: 'block',
+                  width: '100%',
+                  height: 'auto',
+                }}
+              />
+            </div>
+          )}
         </div>
       </div>
 
-      <div style={{ marginTop: '2rem', padding: '1rem', backgroundColor: '#e8f4f8', borderRadius: '8px' }}>
+      <div
+        style={{
+          marginTop: '2rem',
+          padding: '1rem',
+          backgroundColor: '#e8f4f8',
+          borderRadius: '8px',
+        }}
+      >
         <h3>📋 Информация</h3>
         <ul style={{ lineHeight: '1.8' }}>
-          <li><strong>API Endpoints:</strong></li>
-          <li>• <code>/api/interactions</code> - Discord webhook endpoint</li>
-          <li>• <code>/api/screenshot</code> - Создание скриншотов</li>
-          <li>• <code>/api/followup</code> - Отправка followup сообщений</li>
+          <li>
+            <strong>API Endpoints:</strong>
+          </li>
+          <li>
+            • <code>/api/interactions</code> - Discord webhook endpoint
+          </li>
+          <li>
+            • <code>/api/screenshot</code> - Создание скриншотов
+          </li>
+          <li>
+            • <code>/api/followup</code> - Отправка followup сообщений
+          </li>
         </ul>
       </div>
     </div>
