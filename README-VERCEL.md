@@ -191,9 +191,7 @@ ngrok http 3000
 
 1. **Таймауты**: На бесплатном плане Vercel максимальный таймаут функции - 60 секунд. Для Pro плана - до 300 секунд.
 
-2. **Playwright на Vercel**: Playwright должен автоматически работать на Vercel, но если возникнут проблемы, убедитесь что:
-   - В `vercel.json` указан `PLAYWRIGHT_BROWSERS_PATH: "0"`
-   - Playwright установлен как зависимость
+2. **Playwright на Vercel**: используется `@sparticuz/chromium` + `playwright-core` (браузер встроен в пакет, отдельный `playwright install` на деплое не нужен). Для локальной разработки: `npm run playwright:install`
 
 3. **Cold Start**: Первый запрос после периода бездействия может быть медленнее из-за cold start serverless функций.
 

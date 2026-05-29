@@ -1,5 +1,11 @@
 {
   "buildCommand": "npm run build",
-  "framework": "nextjs"
+  "framework": "nextjs",
+  "functions": {
+    "app/api/screenshot/route.ts": {
+      "maxDuration": 60,
+      "memory": 3008
+    }
+  }
 }
 

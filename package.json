@@ -7,8 +7,8 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "discord-interactions": "^3.2.1",
-    "playwright": "^1.40.0",
-    "@playwright/test": "^1.40.0",
+    "@sparticuz/chromium": "^133.0.0",
+    "playwright-core": "^1.49.0",
     "dotenv": "^16.3.1"
   },
   "devDependencies": {
@@ -20,11 +20,11 @@
   },
   "scripts": {
     "dev": "next dev",
-    "build": "npx playwright install chromium && next build",
+    "build": "next build",
     "start": "next start",
     "lint": "next lint",
     "register-commands": "node scripts/register-commands.js",
-    "postinstall": "npx playwright install chromium"
+    "playwright:install": "npx playwright install chromium"
   }
 }
 
