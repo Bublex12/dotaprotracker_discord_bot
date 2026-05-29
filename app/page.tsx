@@ -32,7 +32,11 @@ export default function Home() {
         setMessage(`✅ Скриншот билда для ${heroName}`);
         setScreenshotUrl(data.image);
       } else {
-        setMessage(`❌ Ошибка: ${data.message || data.error}`);
+        const parts = [
+          `❌ Ошибка: ${data.message || data.error}`,
+          data.hint ? `\n\n💡 ${data.hint}` : '',
+        ];
+        setMessage(parts.join(''));
       }
     } catch (error: unknown) {
       const err = error instanceof Error ? error : new Error(String(error));

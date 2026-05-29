@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { launchBrowser } from '@/lib/browser';
+import { createScreenshotPage } from '@/lib/browser';
+import { waitForHeroContent } from '@/lib/cloudflare';
+import { cloudflareCookiesHelp, hasDota2ProtrackerCookies, SITE_URL } from '@/lib/cookies';
 
 // Настройка для Vercel: максимальное время выполнения функции
 export const maxDuration = 60;
@@ -24,19 +26,29 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    log('🌐 Запускаю браузер...', { vercel: !!process.env.VERCEL });
-    const browser = await launchBrowser();
+    log('🌐 Запускаю браузер...', {
+      vercel: !!process.env.VERCEL,
+      hasCookies: hasDota2ProtrackerCookies(),
+    });
+
+    if (process.env.VERCEL && !hasDota2ProtrackerCookies()) {
+      log('⚠️ Cookies Cloudflare не заданы — высокий риск блокировки');
+    }
+
+    const { browser, page } = await createScreenshotPage();
     log('✅ Браузер запущен');
 
-    const page = await browser.newPage();
-    await page.setViewportSize({ width: 1920, height: 1080 });
-
-    const url = `https://dota2protracker.com/hero/${heroName.toLowerCase()}`;
+    const url = `${SITE_URL}/hero/${heroName.toLowerCase()}`;
     log('🔗 Открываю страницу', { url });
-    
+
     try {
+      await page.goto(SITE_URL, { waitUntil: 'domcontentloaded', timeout: 30000 });
+      await page.waitForTimeout(800);
       await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 45000 });
-      log('✅ Страница загружена');
+      log('✅ Начальная загрузка завершена');
+
+      await waitForHeroContent(page);
+      log('✅ Cloudflare пройден, контент героя загружен');
       await page.waitForTimeout(500);
 
       // Закрываем уведомление о согласии
@@ -231,14 +243,20 @@ export async function POST(request: NextRequest) {
       await browser.close();
       throw error;
     }
-  } catch (error: any) {
-    log('❌ Критическая ошибка при создании скриншота', { error: error.message, stack: error.stack });
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : String(error);
+    const isCloudflare = message.includes('Cloudflare') || message.includes('DOTA2PROTRACKER_COOKIES');
+    log('❌ Критическая ошибка при создании скриншота', {
+      error: message,
+      isCloudflare,
+    });
     return NextResponse.json(
       {
         error: 'Failed to create screenshot',
-        message: error.message,
+        message,
+        hint: isCloudflare || message.includes('cf_clearance') ? message : cloudflareCookiesHelp(),
       },
-      { status: 500 }
+      { status: isCloudflare ? 503 : 500 }
     );
   }
 }
